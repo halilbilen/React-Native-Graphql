@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { View, Text, FlatList, Image, TouchableWithoutFeedback, Modal, TouchableOpacity, } from "react-native";
 import gql from "graphql-tag";
 import { useQuery } from "react-apollo";
@@ -8,7 +8,7 @@ export default function List() {
     const [page, setPage] = useState(1)
     const [modal, setModal] = useState(false)
     const [name, setName] = useState("rick")
-
+    const flatListRef = useRef(null)
     const getQuery = gql`
       query {
         characters(page:${page},filter: {name:"${name}"}) {
@@ -29,6 +29,8 @@ export default function List() {
       `;
 
     const { data, loading, error } = useQuery(getQuery);
+
+    
     const _handeOnEndReached = (info) => {
         if (loading || error) {
 
@@ -40,6 +42,7 @@ export default function List() {
     }
 
     const apply = (name) => {
+        flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
         setPage(1)
         setName(name)
         setModal(false)
@@ -59,6 +62,7 @@ export default function List() {
 
                 <View style={{ width: "100%", justifyContent: 'center', alignItems: 'center', flex: 1, }}>
                     <FlatList
+                        ref={flatListRef}
                         showsVerticalScrollIndicator={false}
                         showsHorizontalScrollIndicator={false}
                         data={data.characters.results}
@@ -76,7 +80,7 @@ export default function List() {
                     <View style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}>
                         <View style={styles.filterContainer}>
                             <View style={styles.filterHeaderContainer}>
-                                <Text allowFontScaling={false} style={styles.headerText}>Filter</Text>
+                                <Text allowFontScaling={false} style={[styles.headerText, { marginTop: 10 }]}>Filter</Text>
                             </View>
                             <View style={styles.filterBodyContainer}>
                                 <Text allowFontScaling={false} style={[styles.itemText, { fontSize: 24, marginLeft: 0 }]}>Rick</Text>
